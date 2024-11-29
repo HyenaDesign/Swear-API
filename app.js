@@ -10,11 +10,21 @@ dotenv.config();
 connectDB();
 
 const app = express();
+
+
+app.use(cors());
+
+
 app.use(bodyParser.json());
+app.use(express.json());
+
 
 app.use('/api/v1/orders', orderRoutes);
 app.use('/api/v1/users', userRoutes);
-app.use(cors());
+
+
+app.get('/', (req, res) => res.send('CORS working'));
+
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
