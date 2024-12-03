@@ -28,10 +28,23 @@ const io = new Server(server, {
 io.on('connection', (socket) => {
     console.log('A client connected:', socket.id);
 
-    
+    // Luister naar login-verzoeken
+    socket.on('login', (data) => {
+        const { username, password } = data;
+
+        console.log('Login attempt:', data);
+
+        // Dummy validatie
+        if (username === 'admin' && password === 'admin123') {
+            socket.emit('loginResponse', { success: true });
+        } else {
+            socket.emit('loginResponse', { success: false, message: 'Ongeldige inloggegevens.' });
+        }
+    });
+
+    // Test event
     socket.on('message', (data) => {
         console.log('Message received:', data);
-        
         socket.emit('response', { message: 'Message received on server' });
     });
 
