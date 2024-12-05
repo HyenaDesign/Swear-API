@@ -1,13 +1,11 @@
 const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema({
-    color: String,
-    size: Number,
-    customerName: String,
-    customerEmail: String,
-    customerPhone: String,
+    color: { type: String, required: true },
+    material: { type: String, required: true },
+    size: { type: Number, required: true },
     status: { type: String, default: 'pending' },
-    createdAt: { type: Date, default: Date.now }
+    createdAt: { type: Date, default: Date.now },
 });
 
 module.exports = mongoose.model('Order', orderSchema);
