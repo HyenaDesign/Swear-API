@@ -1,31 +1,28 @@
 const express = require('express');
 const User = require('../models/User');
-const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 const router = express.Router();
 
+// POST: User login
 router.post('/login', async (req, res) => {
     const { username, password } = req.body;
 
     try {
         const user = await User.findOne({ username });
-
         if (!user || !(await bcrypt.compare(password, user.password))) {
-            return res.status(400).json({ status: 'fail', message: 'Invalid credentials' });
+            return res.status(401).json({ status: 'fail', message: 'Invalid credentials' });
         }
 
-        const token = jwt.sign({ id: user._id, role: 'admin' }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        
+        // Emit WebSocket event for login success
+        req.io.emit('loginEvent', { user: username, message: 'User logged in successfully' });
 
-        // Emit a login event to all connected clients via Socket.IO
-        if (req.io) {
-            req.io.emit('user:login', { userId: user._id, username: user.username });
-        }
-
-        res.json({ status: 'success', data: { token } });
+        res.status(200).json({ status: 'success', data: { token } });
     } catch (error) {
-        console.error('Error during login:', error);
-        res.status(500).json({ status: 'error', message: 'Internal server error' });
+        res.status(500).json({ status: 'error', message: error.message });
     }
 });
 
