@@ -1,28 +1,32 @@
 const express = require('express');
+const router = express.Router();
 const Order = require('../models/Order');
 
-const router = express.Router();
-
-// POST: Create a new order
-router.post('/', async (req, res) => {
-    const { color, material, size, status } = req.body;
-
-    try {
-        const newOrder = await Order.create({ color, material, size, status });
-        res.status(201).json({ status: 'success', data: newOrder });
-    } catch (error) {
-        res.status(400).json({ status: 'fail', message: error.message });
-    }
+// Haal alle orders op
+router.get('/', async (req, res) => {
+  try {
+    const orders = await Order.find();
+    res.status(200).json({ data: orders });
+  } catch (error) {
+    res.status(500).json({ message: 'Fout bij ophalen orders', error });
+  }
 });
 
-// GET: Fetch all orders
-router.get('/', async (req, res) => {
-    try {
-        const orders = await Order.find();
-        res.status(200).json({ status: 'success', data: orders });
-    } catch (error) {
-        res.status(400).json({ status: 'fail', message: error.message });
+// Update een order en broadcast de wijziging
+router.put('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updatedOrder = await Order.findByIdAndUpdate(id, req.body, { new: true });
+
+    if (updatedOrder) {
+      req.app.get('io').emit('orderUpdated', updatedOrder); // Broadcast update
+      res.status(200).json(updatedOrder);
+    } else {
+      res.status(404).json({ message: 'Order niet gevonden' });
     }
+  } catch (error) {
+    res.status(500).json({ message: 'Fout bij updaten order', error });
+  }
 });
 
 module.exports = router;
