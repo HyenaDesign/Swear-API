@@ -12,6 +12,27 @@ router.get('/', async (req, res) => {
   }
 });
 
+// Voeg een nieuwe order toe
+router.post('/', async (req, res) => {
+  try {
+    const orderData = req.body;
+
+    // Maak een nieuwe order aan met de ontvangen gegevens
+    const newOrder = new Order(orderData);
+
+    // Sla de nieuwe order op in de database
+    await newOrder.save();
+
+    // Optioneel: Broadcast de nieuwe order naar alle clients
+    req.app.get('io').emit('orderCreated', newOrder);
+
+    // Stuur de nieuwe order als reactie terug
+    res.status(201).json({ message: 'Order succesvol aangemaakt', data: newOrder });
+  } catch (error) {
+    res.status(500).json({ message: 'Fout bij het aanmaken van de order', error });
+  }
+});
+
 // Update een order en broadcast de wijziging
 router.put('/:id', async (req, res) => {
   try {
