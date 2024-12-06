@@ -12,6 +12,20 @@ router.get('/', async (req, res) => {
   }
 });
 
+// Haal een specifieke order op op basis van ID
+router.get('/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const order = await Order.findById(id);
+    if (!order) {
+      return res.status(404).json({ message: 'Order niet gevonden' });
+    }
+    res.status(200).json({ data: order });
+  } catch (error) {
+    res.status(500).json({ message: 'Fout bij ophalen order', error });
+  }
+});
+
 // Voeg een nieuwe order toe
 router.post('/', async (req, res) => {
   try {
