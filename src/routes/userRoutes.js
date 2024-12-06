@@ -5,7 +5,6 @@ const jwt = require('jsonwebtoken');
 
 const router = express.Router();
 
-// POST: User login
 router.post('/login', async (req, res) => {
     const { username, password } = req.body;
 
@@ -17,7 +16,6 @@ router.post('/login', async (req, res) => {
 
         const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
         
-        // Emit WebSocket event for login success
         req.io.emit('loginEvent', { user: username, message: 'User logged in successfully' });
 
         res.status(200).json({ status: 'success', data: { token } });
