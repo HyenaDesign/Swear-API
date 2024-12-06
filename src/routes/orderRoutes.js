@@ -64,4 +64,21 @@ router.put('/:id', async (req, res) => {
   }
 });
 
+// Verwijder een bestelling
+router.delete('/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const deletedOrder = await Order.findByIdAndDelete(id);
+
+    if (deletedOrder) {
+      req.app.get('io').emit('orderDeleted', deletedOrder); // Broadcast delete
+      res.status(200).json({ message: 'Order succesvol verwijderd' });
+    } else {
+      res.status(404).json({ message: 'Order niet gevonden' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Fout bij verwijderen order', error });
+  }
+});
+
 module.exports = router;
