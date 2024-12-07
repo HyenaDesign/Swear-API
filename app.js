@@ -35,7 +35,5 @@ app.use((req, res, next) => {
 // Gebruik de user-routes voor login
 app.use('/api/users', userRoutes);
 
-// Start de server
-server.listen(5000, () => {
-    console.log('Server draait op http://localhost:5000');
-});
+const PORT = process.env.PORT || 5000;
+server.listen(PORT, () => console.log(`Server draait op poort ${PORT}`));
