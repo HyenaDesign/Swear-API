@@ -35,11 +35,12 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(express.json());
 
-app.use('/api/v1/orders', (req, res, next) => {
-  req.io = io;
+app.use((req, res, next) => {
+  req.io = io; // Attach io to the req object globally
   next();
-}, orderRoutes);
+});
 
+app.use('/api/v1/orders', orderRoutes);
 app.use('/api/v1/users', userRoutes);
 
 app.get('/', (req, res) => res.send('API met WebSockets is actief'));
