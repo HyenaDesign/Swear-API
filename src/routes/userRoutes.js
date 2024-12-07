@@ -9,18 +9,8 @@ router.post('/login', async (req, res) => {
     const { username, password } = req.body;
 
     try {
-        console.log('Ontvangen wachtwoord:', password); // Log the password you receive
-
         const user = await User.findOne({ username });
-        if (!user) {
-            console.log('Gebruiker niet gevonden'); // Log when the user is not found
-            return res.status(401).json({ status: 'fail', message: 'Invalid credentials' });
-        }
-
-        const isMatch = await bcrypt.compare(password, user.password);
-        console.log('Vergelijking wachtwoord:', isMatch); // Log the password comparison result
-
-        if (!isMatch) {
+        if (!user || !(await bcrypt.compare(password, user.password))) {
             return res.status(401).json({ status: 'fail', message: 'Invalid credentials' });
         }
 
@@ -30,7 +20,6 @@ router.post('/login', async (req, res) => {
 
         res.status(200).json({ status: 'success', data: { token } });
     } catch (error) {
-        console.error('Login error:', error); // Log the error if something goes wrong
         res.status(500).json({ status: 'error', message: error.message });
     }
 });
